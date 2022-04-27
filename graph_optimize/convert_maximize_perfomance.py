@@ -37,7 +37,7 @@ def convert_to_local_cuda_driver_config(graph_file,output_node_names,input_node_
         engine = builder.build_cuda_engine(network)
 
         buf = engine.serialize()
-        with open(os.path.join(root_folder,'trt_graph.bin'), 'wb') as f:
+        with open(os.path.join(root_folder,'model.bin'), 'wb') as f:
             f.write(buf)
 
 if __name__ == '__main__':

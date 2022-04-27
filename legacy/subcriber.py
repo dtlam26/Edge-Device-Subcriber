@@ -69,9 +69,9 @@ async def camera_capture(cap,channel,stop_event,interpreter,label,camera_info):
             i = i + 1
 
             ss = time.time()
-            # for infer in camera_info["inference"]:
-            if camera_info["inference"] != 0:
-                outputs, obtainable = camera_info["inference"].inference(image,interpreter, label,camera_info["threshold"])
+            # for infer in camera_info["custom"]:
+            if camera_info["custom"]:
+                outputs, obtainable = camera_info["custom"].inference(image,interpreter, label,camera_info["threshold"])
             else:
                 outputs, obtainable = edge.inference(image,interpreter, label,camera_info["threshold"])
 
@@ -213,7 +213,7 @@ while(True):
                     #Stop models running
                     thread_key,thread_list = stop_stream(thread_key,thread_list)
                     #reload_module if neccesary
-                    if camera_list[int(receive['camera'][index])]["inference"] !=0:
+                    if camera_list[int(receive['camera'][index])]["custom"]:
                         reload_module(camera_list[int(receive['camera'][index])]["model_path"].split("/")[-1].split(".")[0])
 
                     link = 'http://'+receive['file']
@@ -253,9 +253,9 @@ while(True):
                         with zipfile.ZipFile(f"./model_execution/{current_file}", 'r') as z:
                             z.extractall(path='./model_execution/'+model_as_folder)
 
-                        camera_list[int(receive['camera'][index])]["inference"] = importlib.import_module(".run",package=f"model_execution.{model_as_folder}")
+                        camera_list[int(receive['camera'][index])]["custom"] = importlib.import_module(".run",package=f"model_execution.{model_as_folder}")
                     else:
-                        camera_list[int(receive['camera'][index])]["inference"] = 0
+                        camera_list[int(receive['camera'][index])]["custom"] = 0
                     r.publish("edge_response",json.dumps({"edge": edge_addr,"deployable": 2,"camera_index": receive['camera'][index], "model_name": res}))
                     # except:
                     #     r.publish("edge_response",json.dumps({"edge": edge_addr,"deployable": 1}))

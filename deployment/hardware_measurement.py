@@ -8,16 +8,20 @@ from deployment.utils import inject_server_info
 async def stream_measure(subcriber_hardware_info,edge_addr,stop_event,**kwargs):
     aior = await aioredis.create_redis(f"redis://{kwargs['server']}:{kwargs['port']}",password=kwargs['AUTH_KEY'])
     channel = edge_addr+"_hardwareinfo"
-    while(True):
-        if stop_event.is_set():
-            break
-        subcriber_hardware_info.measure()
-        results = subcriber_hardware_info.observe
-        # print(results)
-        await aior.xadd(channel,{"data" : json.dumps(results)},max_len=500) #faster execution
-    aior.close()
-    while(subcriber_hardware_info.is_alive()):
-        subcriber_hardware_info.close()
+    try:
+        while(True):
+            if stop_event.is_set():
+                break
+            subcriber_hardware_info.measure()
+            results = subcriber_hardware_info.observe
+            # print(results)
+            await aior.xadd(channel,{"data" : json.dumps(results)},max_len=500) #faster execution
+        aior.close()
+        while(subcriber_hardware_info.is_alive()):
+            subcriber_hardware_info.close()
+    except Exception as e:
+        print(e)
+        stop_event.set()
 
 class SubciberInfo():
     def __init__(self,cameras,mainkey):

@@ -25,6 +25,7 @@ parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-n', type=str, help='edge name')
 parser.add_argument('-t', type=str, help='edge type')
 parser.add_argument('-c', type=str, help='camera index')
+parser.add_argument('-b', type=int, help='number of fake edge')
 args = parser.parse_args()
 
 def edge_operate(benchmark_folder,name,i,time_list):
@@ -69,7 +70,7 @@ def edge_operate(benchmark_folder,name,i,time_list):
                         #Stop models running
                         thread_key,thread_list = stream_from_edge.stop_stream(camera_list,thread_key,thread_list)
                         #reload_module if neccesary
-                        if camera_list[int(receive['camera'][index])]["inference"] != 0:
+                        if camera_list[int(receive['camera'][index])]["custom"]:
                             reload_module(camera_list[int(receive['camera'][index])]["model_path"].split("/")[-1].split(".")[0])
                         # try:
                         r.publish("edge_response",json.dumps({"edge": edge_addr,"deployable": 3}))
@@ -125,7 +126,8 @@ def edge_operate(benchmark_folder,name,i,time_list):
                         time_list.append(time.time()-s)
                         r.publish("edge_response",json.dumps({"edge": edge_addr,"deployable": 2,"camera_index": receive['camera'][index], "model_name": receive['model_name']}))
                         test = False
-
+                        break
+                        
                 if receive['command'] == 'stream':
                     """
                     config orders:
@@ -152,7 +154,7 @@ def edge_operate(benchmark_folder,name,i,time_list):
 
 
 cuda_ctx = None
-number_of_fake_edges = 10
+number_of_fake_edges = args.b
 benchmark_folder = '../benchmark'
 vpn = VPN_Connect(benchmark_folder)
 

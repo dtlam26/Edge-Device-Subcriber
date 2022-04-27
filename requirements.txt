@@ -1,5 +1,12 @@
-wget
+numpy
 redis
 aioredis
 psutil
-
+numpy
+distro
+scipy
+matplotlib
+jupyterlab
+setuptools==40.6.0
+wget
+loguru
